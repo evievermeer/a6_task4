@@ -1,0 +1,86 @@
+---
+title: "Assignment 6, Task 4 - Visualizing the History of Mono Lake Levels, Along with Important Thresholds and Historical Moments"
+author: "Evie Vermeer"
+date: "11/28/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+#setup
+library(here)
+library(janitor)
+library(broom)
+library(tidyverse)
+library(kableExtra)
+library(plotly)
+library(ggplot2)
+```
+
+```{r include = FALSE}
+# read in data, omit needless csv chunk, clean data and rename variable
+mono_lake <- read_csv(here("data", "mono_lake_annual_levels.csv"), 
+                      skip = 5) %>%
+  
+  clean_names() %>% 
+  rename(lake_level = lake_level_feet_above_sea_level)
+```
+
+```{r}
+#create plot
+ggplot(data = mono_lake, aes(x=year, y = lake_level)) +
+  geom_line(size = .6, color = "cadetblue") +
+  #adjust axes and scales
+  scale_x_continuous(breaks = seq(1850,2020,10))+
+  # scale_x_continuous(limits = c(1850, 2020))  #still having trouble with limiting scale
+  ylim(6340, max(mono_lake$lake_level)) +
+  #create line for stable water level
+  geom_line(aes(x = year, y = stable_level),
+                    color = "blue") +
+  #add colored threshold visualizations for water levels of note
+  geom_rect(aes(ymin = 6360, ymax = 6377, 
+                xmin = 1850, xmax = 2020),
+            fill = "darkgoldenrod1",
+            alpha = .005) +
+  geom_rect(aes(ymin = 6350, ymax = 6360, 
+                xmin = 1850, xmax = 2020),
+            fill = "darkorange", 
+            alpha = .01) +
+  geom_rect(aes(ymin = 6340, ymax = 6350, 
+                xmin = 1850, xmax = 2020),
+          fill = "firebrick", 
+          alpha = .005) +
+  #add text annotations for milestones, along with labels for water level visualizations
+  annotate("text", x = 1941, y = 6415, 
+           label = "1941: Water from Mono Lake's Tributaries is Diverted to LA",
+           size = 2.5, hjust = 0, face = "bold") +
+  annotate("text", x = 1978, y = 6370, 
+           label = "1978: Mono Lake Committee Formed",
+           size = 2.5, hjust = 0, face = "bold")+
+  annotate("text", x = 1875, y = 6390, 
+           label = "6,392 feet: Stable Lake Level", size = 2.5, hjust = 0) +
+  annotate("text", x = 1875, y = 6375, 
+           label = "6,377 feet: Land bridges Form & Predators May Access Nesting Sites", size = 2.5, hjust = 0) +
+  annotate("text", x = 1875, y = 6358, 
+           label = "6,360 feet: Brine Shrimp Population Decrease Affects Reliant Birds (CA gull & Eared Grebe", 
+           size = 2.5, hjust = 0) +
+  annotate("text", x = 1875, y = 6348, 
+           label = "6,350 feet: Brine Shrimp Population Decrease Acutely Affects Reliant Birds (CA gull & Eared Grebe",
+           size = 2.5, hjust = 0) +
+  #add axis labels, along with title, subtitle and captions
+  labs(x = "Year",
+       y = "Lake Level - Elevation above Sea Level (ft)",
+       title = "Figure 1. Mono Lake Water Levels 1850 - 2017",
+       subtitle = "Additional Thresholds of Lower Water Levels Shown, with Corresponding Impacts",
+       caption = "Data from Mono Basin Clearinghouse, Along with Information Regarding Important Milestones in the Lake's History" ) +
+  #theme customizations
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5,)) +
+  theme(plot.subtitle = element_text(hjust = 0.5, face = "italic", size = 8))+
+  theme(plot.caption = element_text(hjust = 0.5, face = "italic", size = 7))
+  
+  
+```
+
+
+
